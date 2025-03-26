@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR 코드 스캐너</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #qr-reader { width: 300px; margin: 20px auto; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h2>📷 QR 코드 스캐너</h2>
+    <button onclick="startQRScanner()">QR 코드 촬영</button>
+    <div id="qr-reader" style="display: none;"></div>
+    <p id="result"></p>
+
+    <script>
+        function startQRScanner() {
+            const qrReader = document.getElementById("qr-reader");
+            qrReader.style.display = "block";
+
+            const html5QrCode = new Html5Qrcode("qr-reader");
+
+            Html5Qrcode.getCameras().then(cameras => {
+                if (cameras.length > 0) {
+                    let cameraId = cameras[0].id;
+                    html5QrCode.start(
+                        cameraId,
+                        { fps: 10, qrbox: 250 },
+                        qrCodeMessage => {
+                            document.getElementById("result").innerText = "✅ QR 코드 내용: " + qrCodeMessage;
+                            html5QrCode.stop();
+                        },
+                        errorMessage => {
+                            console.log("QR 코드 인식 실패:", errorMessage);
+                        }
+                    ).catch(err => {
+                        console.error("QR 스캐너 시작 실패:", err);
+                        alert("❌ 카메라 접근이 차단되었습니다. 설정에서 카메라 권한을 허용해주세요.");
+                    });
+                } else {
+                    alert("❌ 카메라를 찾을 수 없습니다.");
+                }
+            }).catch(err => {
+                console.error("카메라 접근 오류:", err);
+                alert("❌ 카메라 권한을 허용해주세요.");
+            });
+        }
+    </script>
+
+</body>
+</html>
