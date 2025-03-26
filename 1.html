@@ -3,26 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR 코드 스캔1</title>
+    <title>QR 코드 스캔</title>
     <script src="https://unpkg.com/html5-qrcode@latest/minified/html5-qrcode.min.js" defer></script>
 </head>
 <body>
     <h1>QR 코드 스캔</h1>
-    <div id="reader" style="width: 300px;"></div>
-    <button onclick="startQRScanner()">QR 스캔 시작</button>
+    <div id="reader" style="width: 300px; height: 300px;"></div>
+    <button id="scanBtn">QR 스캔 시작</button>
     <p id="result">스캔 결과: </p>
 
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("scanBtn").addEventListener("click", startQRScanner);
+        });
+
         function startQRScanner() {
+            if (typeof Html5Qrcode === "undefined") {
+                alert("QR 코드 라이브러리가 로드되지 않았습니다!");
+                return;
+            }
+
             const html5QrCode = new Html5Qrcode("reader");
 
             html5QrCode.start(
-                { facingMode: "environment" }, // 후면 카메라 사용
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
-                (decodedText, decodedResult) => {
+                { facingMode: "environment" }, // 후면 카메라
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText) => {
                     document.getElementById("result").innerText = "스캔 결과: " + decodedText;
                     html5QrCode.stop();
                 },
@@ -30,7 +36,7 @@
                     console.log(errorMessage);
                 }
             ).catch(err => {
-                console.log("QR 스캐너 오류: ", err);
+                console.error("QR 스캐너 오류:", err);
             });
         }
     </script>
